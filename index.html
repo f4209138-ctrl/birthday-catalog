@@ -249,7 +249,7 @@
                         <input type="text" id="new-name" placeholder="e.g., Organic Bananas">
                     </div>
                     <div class="input-group">
-                        <label for="new-price">Price ($)</label>
+                        <label for="new-price">Price (₹)</label>
                         <input type="number" id="new-price" min="0.01" step="0.01" placeholder="0.00">
                     </div>
                     <div class="input-group">
@@ -278,15 +278,15 @@
             <div class="cart-summary">
                 <div class="summary-row total-row">
                     <span>Total Bill:</span>
-                    <span id="total-price">$0.00</span>
+                    <span id="total-price">₹0.00</span>
                 </div>
 
                 <div class="payment-section">
                     <div class="input-group" style="margin-bottom: 1rem;">
-                        <label for="amount-paid">Cash Tendered ($):</label>
+                        <label for="amount-paid">Cash Tendered (₹):</label>
                         <input type="number" id="amount-paid" min="0" step="0.01" placeholder="0.00" disabled>
                     </div>
-                    <div class="change-display" id="change-display">Change: $0.00</div>
+                    <div class="change-display" id="change-display">Change: ₹0.00</div>
                     <button class="btn" id="checkout-btn" style="width: 100%;" disabled onclick="processPayment()">Collect Payment & Log Sale</button>
                 </div>
             </div>
@@ -358,14 +358,14 @@
 
             foodInventory.forEach(item => {
                 let stockClass = 'stock-in';
-                let stockText = `${item.stock} units remaining`;
+                let stockText = `₹{item.stock} units remaining`;
                 
                 if (item.stock === 0) {
                     stockClass = 'stock-out';
                     stockText = 'Out of Stock';
                 } else if (item.stock <= 5) {
                     stockClass = 'stock-low';
-                    stockText = `Critical: Only ${item.stock} left`;
+                    stockText = `Critical: Only ₹{item.stock} left`;
                 }
 
                 const cartQty = currentCart[item.id] || 0;
@@ -373,19 +373,19 @@
 
                 grid.innerHTML += `
                     <div class="item-card">
-                        <button class="delete-prod-btn" onclick="deleteProductFromCatalog(${item.id})" title="Delete product from store">🗑️</button>
+                        <button class="delete-prod-btn" onclick="deleteProductFromCatalog(₹{item.id})" title="Delete product from store">🗑️</button>
                         <div>
-                            <div class="item-name">${item.name}</div>
-                            <div class="item-price">$${item.price.toFixed(2)}</div>
+                            <div class="item-name">₹{item.name}</div>
+                            <div class="item-price">₹₹{item.price.toFixed(2)}</div>
                         </div>
                         <div>
                             <div class="item-stock">
-                                <span class="stock-badge ${stockClass}">${stockText}</span>
+                                <span class="stock-badge ₹{stockClass}">₹{stockText}</span>
                             </div>
                             <button class="btn" style="width:100%;"
-                                    ${availableStock <= 0 ? 'disabled' : ''} 
-                                    onclick="addToCart(${item.id})">
-                                ${availableStock <= 0 ? 'Unavailable' : 'Add to Receipt'}
+                                    ₹{availableStock <= 0 ? 'disabled' : ''} 
+                                    onclick="addToCart(₹{item.id})">
+                                ₹{availableStock <= 0 ? 'Unavailable' : 'Add to Receipt'}
                             </button>
                         </div>
                     </div>
@@ -425,11 +425,11 @@
 
             if (Object.keys(currentCart).length === 0) {
                 cartContainer.innerHTML = `<p style="color: #64748b; text-align: center; padding: 2rem 0;">No items on current ticket.</p>`;
-                totalDisplay.innerText = "$0.00";
+                totalDisplay.innerText = "₹0.00";
                 amountPaidInput.disabled = true;
                 amountPaidInput.value = "";
                 checkoutBtn.disabled = true;
-                document.getElementById('change-display').innerText = "Change: $0.00";
+                document.getElementById('change-display').innerText = "Change: ₹0.00";
                 return;
             }
 
@@ -447,18 +447,18 @@
                 cartContainer.innerHTML += `
                     <div class="cart-item">
                         <div>
-                            <strong>${item.name}</strong><br>
-                            <small>$${item.price.toFixed(2)} x ${quantity}</small>
+                            <strong>₹{item.name}</strong><br>
+                            <small>₹₹{item.price.toFixed(2)} x ₹{quantity}</small>
                         </div>
                         <div class="cart-item-actions">
-                            <div>$${itemTotal.toFixed(2)}</div>
-                            <button class="btn btn-danger" onclick="removeFromCart(${id})" title="Remove 1 item">-</button>
+                            <div>₹₹{itemTotal.toFixed(2)}</div>
+                            <button class="btn btn-danger" onclick="removeFromCart(₹{id})" title="Remove 1 item">-</button>
                         </div>
                     </div>
                 `;
             });
 
-            totalDisplay.innerText = `$${grandTotal.toFixed(2)}`;
+            totalDisplay.innerText = `₹₹{grandTotal.toFixed(2)}`;
             amountPaidInput.disabled = false;
 
             calculateChange(grandTotal);
@@ -475,15 +475,15 @@
                 const change = paid - total;
 
                 if (amountPaidInput.value === "") {
-                    changeDisplay.innerText = "Change: $0.00";
+                    changeDisplay.innerText = "Change: ₹0.00";
                     changeDisplay.style.color = "var(--primary-dark)";
                     checkoutBtn.disabled = true;
                 } else if (change >= 0) {
-                    changeDisplay.innerText = `Return Cash: $${change.toFixed(2)}`;
+                    changeDisplay.innerText = `Return Cash: ₹₹{change.toFixed(2)}`;
                     changeDisplay.style.color = "var(--primary-dark)";
                     checkoutBtn.disabled = false;
                 } else {
-                    changeDisplay.innerText = `Deficit: -$${Math.abs(change).toFixed(2)}`;
+                    changeDisplay.innerText = `Deficit: -₹₹{Math.abs(change).toFixed(2)}`;
                     changeDisplay.style.color = "var(--danger)";
                     checkoutBtn.disabled = true;
                 }
