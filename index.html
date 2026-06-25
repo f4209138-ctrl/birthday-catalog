@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Shop Portal</title>
+    <style>
+        :root {
+            --primary: #2ecc71;
+            --primary-dark: #27ae60;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --danger: #e74c3c;
+            --danger-dark: #c0392b;
+            --border: #e2e8f0;
+            --accent: #3498db;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f1f5f9;
+            color: var(--dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--dark);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .shop-title-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .edit-title-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .edit-title-btn:hover { background: rgba(255,255,255,0.3); }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 420px;
+            gap: 2rem;
+            max-width: 1400px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            flex: 1;
+        }
+
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+            border-bottom: 2px solid var(--light);
+            padding-bottom: 0.5rem;
+        }
+
+        /* Form Controls */
+        .inline-form {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 1rem;
+            align-items: flex-end;
+            background: var(--light);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .inline-form { grid-template-columns: 1fr; }
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .input-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .input-group input {
+            padding: 0.6rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+
+        /* Inventory Grid */
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .item-card {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            background: var(--light);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 190px;
+            position: relative;
+        }
+
+        .delete-prod-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 2px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .delete-prod-btn:hover { background: #fee2e2; }
+
+        .item-name { font-weight: 600; font-size: 1.1rem; margin-bottom: 0.25rem; margin-top: 0.5rem; }
+        .item-price { color: var(--primary-dark); font-weight: bold; font-size: 1.1rem; margin-bottom: 0.5rem; }
+        .item-stock { font-size: 0.85rem; margin-bottom: 1rem; }
+
+        .stock-badge { padding: 0.25rem 0.5rem; border-radius: 20px; font-weight: bold; }
+        .stock-in { background: #dcfce7; color: #15803d; }
+        .stock-low { background: #fef9c3; color: #a16207; }
+        .stock-out { background: #fee2e2; color: #b91c1c; }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .btn:hover { background-color: var(--primary-dark); }
+        .btn-accent { background-color: var(--accent); }
+        .btn-accent:hover { background-color: #2980b9; }
+        .btn-danger { background-color: var(--danger); padding: 0.25rem 0.6rem; font-size: 0.85rem;}
+        .btn-danger:hover { background-color: var(--danger-dark); }
+        .btn:disabled { background-color: #cbd5e1; cursor: not-allowed; }
+
+        /* Checkout Section */
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .cart-item-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .cart-summary {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 2px dashed var(--border);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .total-row { font-weight: bold; font-size: 1.4rem; color: var(--dark); }
+
+        .payment-section {
+            margin-top: 1.5rem;
+            background: var(--light);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .change-display {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-dark);
+            text-align: center;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="shop-title-container">
+            <h1 id="shop-name">FreshCart Market</h1>
+            <button class="edit-title-btn" onclick="updateShopName()">✏️ Edit Name</button>
+        </div>
+        <div>Cashier Station Active</div>
+    </header>
+
+    <div class="container">
+        <div>
+            <div class="card">
+                <h2>Product Manager (Add / Restock Items)</h2>
+                <div class="inline-form">
+                    <div class="input-group">
+                        <label for="new-name">Product Name</label>
+                        <input type="text" id="new-name" placeholder="e.g., Organic Bananas">
+                    </div>
+                    <div class="input-group">
+                        <label for="new-price">Price ($)</label>
+                        <input type="number" id="new-price" min="0.01" step="0.01" placeholder="0.00">
+                    </div>
+                    <div class="input-group">
+                        <label for="new-stock">Initial Stock</label>
+                        <input type="number" id="new-stock" min="1" placeholder="10">
+                    </div>
+                    <button class="btn btn-accent" onclick="addNewProduct()">Add to Catalog</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Live Inventory Stock</h2>
+                <div class="inventory-grid" id="inventory-grid">
+                    </div>
+            </div>
+        </div>
+
+        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; height: fit-content;">
+            <div>
+                <h2>Current Register Receipt</h2>
+                <div id="cart-items">
+                    <p style="color: #64748b; text-align: center; padding: 2rem 0;">No items on current ticket.</p>
+                </div>
+            </div>
+
+            <div class="cart-summary">
+                <div class="summary-row total-row">
+                    <span>Total Bill:</span>
+                    <span id="total-price">$0.00</span>
+                </div>
+
+                <div class="payment-section">
+                    <div class="input-group" style="margin-bottom: 1rem;">
+                        <label for="amount-paid">Cash Tendered ($):</label>
+                        <input type="number" id="amount-paid" min="0" step="0.01" placeholder="0.00" disabled>
+                    </div>
+                    <div class="change-display" id="change-display">Change: $0.00</div>
+                    <button class="btn" id="checkout-btn" style="width: 100%;" disabled onclick="processPayment()">Collect Payment & Log Sale</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initial Mock Database
+        let foodInventory = [
+            { id: 1, name: "Fresh Apples", price: 2.99, stock: 45 },
+            { id: 2, name: "Whole Wheat Bread", price: 3.49, stock: 12 },
+            { id: 3, name: "Organic Milk (1L)", price: 4.19, stock: 8 }
+        ];
+
+        let currentCart = {};
+
+        // 1. Update the overall Title of the Store
+        function updateShopName() {
+            const currentName = document.getElementById('shop-name').innerText;
+            const newName = prompt("Enter custom Store/Shop Name:", currentName);
+            if (newName && newName.trim() !== "") {
+                document.getElementById('shop-name').innerText = newName.trim();
+            }
+        }
+
+        // 2. Add New Custom Items into the Database Dynamic Logic
+        function addNewProduct() {
+            const nameInput = document.getElementById('new-name');
+            const priceInput = document.getElementById('new-price');
+            const stockInput = document.getElementById('new-stock');
+
+            const name = nameInput.value.trim();
+            const price = parseFloat(priceInput.value);
+            const stock = parseInt(stockInput.value);
+
+            if (!name || isNaN(price) || price <= 0 || isNaN(stock) || stock < 0) {
+                alert("Please complete all custom item fields correctly.");
+                return;
+            }
+
+            const newId = foodInventory.length > 0 ? Math.max(...foodInventory.map(p => p.id)) + 1 : 1;
+            
+            foodInventory.push({ id: newId, name: name, price: price, stock: stock });
+
+            nameInput.value = '';
+            priceInput.value = '';
+            stockInput.value = '';
+
+            displayInventory();
+        }
+
+        // 3. Delete Entire Product Completely from Shop Catalog
+        function deleteProductFromCatalog(id) {
+            if (confirm("Are you sure you want to permanently delete this item from the store catalog?")) {
+                // Remove from cart if it exists there
+                delete currentCart[id];
+                // Remove from main inventory array
+                foodInventory = foodInventory.filter(item => item.id !== id);
+                
+                updateCartUI();
+                displayInventory();
+            }
+        }
+
+        // 4. Render Store layout
+        function displayInventory() {
+            const grid = document.getElementById('inventory-grid');
+            grid.innerHTML = '';
+
+            foodInventory.forEach(item => {
+                let stockClass = 'stock-in';
+                let stockText = `${item.stock} units remaining`;
+                
+                if (item.stock === 0) {
+                    stockClass = 'stock-out';
+                    stockText = 'Out of Stock';
+                } else if (item.stock <= 5) {
+                    stockClass = 'stock-low';
+                    stockText = `Critical: Only ${item.stock} left`;
+                }
+
+                const cartQty = currentCart[item.id] || 0;
+                const availableStock = item.stock - cartQty;
+
+                grid.innerHTML += `
+                    <div class="item-card">
+                        <button class="delete-prod-btn" onclick="deleteProductFromCatalog(${item.id})" title="Delete product from store">🗑️</button>
+                        <div>
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-price">$${item.price.toFixed(2)}</div>
+                        </div>
+                        <div>
+                            <div class="item-stock">
+                                <span class="stock-badge ${stockClass}">${stockText}</span>
+                            </div>
+                            <button class="btn" style="width:100%;"
+                                    ${availableStock <= 0 ? 'disabled' : ''} 
+                                    onclick="addToCart(${item.id})">
+                                ${availableStock <= 0 ? 'Unavailable' : 'Add to Receipt'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // 5. Register Transaction calculations
+        function addToCart(id) {
+            const item = foodInventory.find(p => p.id === id);
+            const cartQty = currentCart[id] || 0;
+
+            if (cartQty < item.stock) {
+                currentCart[id] = cartQty + 1;
+                updateCartUI();
+                displayInventory();
+            }
+        }
+
+        // 6. Remove item / decrease count from the active ticket
+        function removeFromCart(id) {
+            if (currentCart[id]) {
+                currentCart[id] -= 1;
+                if (currentCart[id] <= 0) {
+                    delete currentCart[id];
+                }
+                updateCartUI();
+                displayInventory();
+            }
+        }
+
+        function updateCartUI() {
+            const cartContainer = document.getElementById('cart-items');
+            const totalDisplay = document.getElementById('total-price');
+            const amountPaidInput = document.getElementById('amount-paid');
+            const checkoutBtn = document.getElementById('checkout-btn');
+
+            if (Object.keys(currentCart).length === 0) {
+                cartContainer.innerHTML = `<p style="color: #64748b; text-align: center; padding: 2rem 0;">No items on current ticket.</p>`;
+                totalDisplay.innerText = "$0.00";
+                amountPaidInput.disabled = true;
+                amountPaidInput.value = "";
+                checkoutBtn.disabled = true;
+                document.getElementById('change-display').innerText = "Change: $0.00";
+                return;
+            }
+
+            cartContainer.innerHTML = '';
+            let grandTotal = 0;
+
+            Object.keys(currentCart).forEach(id => {
+                const item = foodInventory.find(p => p.id == id);
+                if (!item) return; // Safeguard if item was deleted from catalog
+                
+                const quantity = currentCart[id];
+                const itemTotal = item.price * quantity;
+                grandTotal += itemTotal;
+
+                cartContainer.innerHTML += `
+                    <div class="cart-item">
+                        <div>
+                            <strong>${item.name}</strong><br>
+                            <small>$${item.price.toFixed(2)} x ${quantity}</small>
+                        </div>
+                        <div class="cart-item-actions">
+                            <div>$${itemTotal.toFixed(2)}</div>
+                            <button class="btn btn-danger" onclick="removeFromCart(${id})" title="Remove 1 item">-</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            totalDisplay.innerText = `$${grandTotal.toFixed(2)}`;
+            amountPaidInput.disabled = false;
+
+            calculateChange(grandTotal);
+        }
+
+        function calculateChange(total) {
+            const amountPaidInput = document.getElementById('amount-paid');
+            const changeDisplay = document.getElementById('change-display');
+            const checkoutBtn = document.getElementById('checkout-btn');
+
+            // Recalculate based on whatever value is currently written in the text box
+            const checkFunds = () => {
+                const paid = parseFloat(amountPaidInput.value) || 0;
+                const change = paid - total;
+
+                if (amountPaidInput.value === "") {
+                    changeDisplay.innerText = "Change: $0.00";
+                    changeDisplay.style.color = "var(--primary-dark)";
+                    checkoutBtn.disabled = true;
+                } else if (change >= 0) {
+                    changeDisplay.innerText = `Return Cash: $${change.toFixed(2)}`;
+                    changeDisplay.style.color = "var(--primary-dark)";
+                    checkoutBtn.disabled = false;
+                } else {
+                    changeDisplay.innerText = `Deficit: -$${Math.abs(change).toFixed(2)}`;
+                    changeDisplay.style.color = "var(--danger)";
+                    checkoutBtn.disabled = true;
+                }
+            };
+
+            amountPaidInput.oninput = checkFunds;
+            checkFunds(); // Call initially to update state instantly if cart changes
+        }
+
+        // 7. Commit inventory values on success
+        function processPayment() {
+            Object.keys(currentCart).forEach(id => {
+                const item = foodInventory.find(p => p.id == id);
+                if (item) item.stock -= currentCart[id];
+            });
+
+            alert("Sale completed successfully! Inventory states updated.");
+            currentCart = {};
+            updateCartUI();
+            displayInventory();
+        }
+
+        // Initialize setup layout
+        displayInventory();
+    </script>
+</body>
+</html>
