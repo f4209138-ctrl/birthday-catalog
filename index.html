@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Shop Portal</title>
+    <title>Dynamic Shop Portal (INR)</title>
     <style>
         :root {
             --primary: #2ecc71;
@@ -233,10 +233,10 @@
 
     <header>
         <div class="shop-title-container">
-            <h1 id="shop-name">FreshCart Market</h1>
+            <h1 id="shop-name">Apna Bazar</h1>
             <button class="edit-title-btn" onclick="updateShopName()">✏️ Edit Name</button>
         </div>
-        <div>Cashier Station Active</div>
+        <div>Billing Counter Active</div>
     </header>
 
     <div class="container">
@@ -246,11 +246,11 @@
                 <div class="inline-form">
                     <div class="input-group">
                         <label for="new-name">Product Name</label>
-                        <input type="text" id="new-name" placeholder="e.g., Organic Bananas">
+                        <input type="text" id="new-name" placeholder="e.g., Basmati Rice">
                     </div>
                     <div class="input-group">
                         <label for="new-price">Price (₹)</label>
-                        <input type="number" id="new-price" min="0.01" step="0.01" placeholder="0.00">
+                        <input type="number" id="new-price" min="1" step="1" placeholder="0">
                     </div>
                     <div class="input-group">
                         <label for="new-stock">Initial Stock</label>
@@ -269,7 +269,7 @@
 
         <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; height: fit-content;">
             <div>
-                <h2>Current Register Receipt</h2>
+                <h2>Current Bill / Receipt</h2>
                 <div id="cart-items">
                     <p style="color: #64748b; text-align: center; padding: 2rem 0;">No items on current ticket.</p>
                 </div>
@@ -283,27 +283,27 @@
 
                 <div class="payment-section">
                     <div class="input-group" style="margin-bottom: 1rem;">
-                        <label for="amount-paid">Cash Tendered (₹):</label>
-                        <input type="number" id="amount-paid" min="0" step="0.01" placeholder="0.00" disabled>
+                        <label for="amount-paid">Cash Received (₹):</label>
+                        <input type="number" id="amount-paid" min="0" step="1" placeholder="0" disabled>
                     </div>
                     <div class="change-display" id="change-display">Change: ₹0.00</div>
-                    <button class="btn" id="checkout-btn" style="width: 100%;" disabled onclick="processPayment()">Collect Payment & Log Sale</button>
+                    <button class="btn" id="checkout-btn" style="width: 100%;" disabled onclick="processPayment()">Collect Payment & Print Bill</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Initial Mock Database
+        // Initial Mock Database in INR
         let foodInventory = [
-            { id: 1, name: "Fresh Apples", price: 2.99, stock: 45 },
-            { id: 2, name: "Whole Wheat Bread", price: 3.49, stock: 12 },
-            { id: 3, name: "Organic Milk (1L)", price: 4.19, stock: 8 }
+            { id: 1, name: "Fresh Apples (1kg)", price: 180, stock: 45 },
+            { id: 2, name: "Atta Whole Wheat (5kg)", price: 260, stock: 12 },
+            { id: 3, name: "Toned Milk (1L)", price: 56, stock: 15 }
         ];
 
         let currentCart = {};
 
-        // 1. Update the overall Title of the Store
+        // 1. Update Store Title
         function updateShopName() {
             const currentName = document.getElementById('shop-name').innerText;
             const newName = prompt("Enter custom Store/Shop Name:", currentName);
@@ -312,7 +312,7 @@
             }
         }
 
-        // 2. Add New Custom Items into the Database Dynamic Logic
+        // 2. Add New Items
         function addNewProduct() {
             const nameInput = document.getElementById('new-name');
             const priceInput = document.getElementById('new-price');
@@ -323,7 +323,7 @@
             const stock = parseInt(stockInput.value);
 
             if (!name || isNaN(price) || price <= 0 || isNaN(stock) || stock < 0) {
-                alert("Please complete all custom item fields correctly.");
+                alert("Please complete all fields correctly.");
                 return;
             }
 
@@ -338,34 +338,31 @@
             displayInventory();
         }
 
-        // 3. Delete Entire Product Completely from Shop Catalog
+        // 3. Delete from Catalog
         function deleteProductFromCatalog(id) {
             if (confirm("Are you sure you want to permanently delete this item from the store catalog?")) {
-                // Remove from cart if it exists there
                 delete currentCart[id];
-                // Remove from main inventory array
                 foodInventory = foodInventory.filter(item => item.id !== id);
-                
                 updateCartUI();
                 displayInventory();
             }
         }
 
-        // 4. Render Store layout
+        // 4. Render Store Layout
         function displayInventory() {
             const grid = document.getElementById('inventory-grid');
             grid.innerHTML = '';
 
             foodInventory.forEach(item => {
                 let stockClass = 'stock-in';
-                let stockText = `₹{item.stock} units remaining`;
+                let stockText = `${item.stock} units remaining`;
                 
                 if (item.stock === 0) {
                     stockClass = 'stock-out';
                     stockText = 'Out of Stock';
                 } else if (item.stock <= 5) {
                     stockClass = 'stock-low';
-                    stockText = `Critical: Only ₹{item.stock} left`;
+                    stockText = `Critical: Only ${item.stock} left`;
                 }
 
                 const cartQty = currentCart[item.id] || 0;
@@ -373,19 +370,19 @@
 
                 grid.innerHTML += `
                     <div class="item-card">
-                        <button class="delete-prod-btn" onclick="deleteProductFromCatalog(₹{item.id})" title="Delete product from store">🗑️</button>
+                        <button class="delete-prod-btn" onclick="deleteProductFromCatalog(${item.id})" title="Delete product from store">🗑️</button>
                         <div>
-                            <div class="item-name">₹{item.name}</div>
-                            <div class="item-price">₹₹{item.price.toFixed(2)}</div>
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-price">₹${item.price.toFixed(2)}</div>
                         </div>
                         <div>
                             <div class="item-stock">
-                                <span class="stock-badge ₹{stockClass}">₹{stockText}</span>
+                                <span class="stock-badge ${stockClass}">${stockText}</span>
                             </div>
                             <button class="btn" style="width:100%;"
-                                    ₹{availableStock <= 0 ? 'disabled' : ''} 
-                                    onclick="addToCart(₹{item.id})">
-                                ₹{availableStock <= 0 ? 'Unavailable' : 'Add to Receipt'}
+                                    ${availableStock <= 0 ? 'disabled' : ''} 
+                                    onclick="addToCart(${item.id})">
+                                ${availableStock <= 0 ? 'Unavailable' : 'Add to Bill'}
                             </button>
                         </div>
                     </div>
@@ -393,7 +390,7 @@
             });
         }
 
-        // 5. Register Transaction calculations
+        // 5. Cart Actions
         function addToCart(id) {
             const item = foodInventory.find(p => p.id === id);
             const cartQty = currentCart[id] || 0;
@@ -405,7 +402,6 @@
             }
         }
 
-        // 6. Remove item / decrease count from the active ticket
         function removeFromCart(id) {
             if (currentCart[id]) {
                 currentCart[id] -= 1;
@@ -417,6 +413,7 @@
             }
         }
 
+        // 6. Update Register UI
         function updateCartUI() {
             const cartContainer = document.getElementById('cart-items');
             const totalDisplay = document.getElementById('total-price');
@@ -438,7 +435,7 @@
 
             Object.keys(currentCart).forEach(id => {
                 const item = foodInventory.find(p => p.id == id);
-                if (!item) return; // Safeguard if item was deleted from catalog
+                if (!item) return;
                 
                 const quantity = currentCart[id];
                 const itemTotal = item.price * quantity;
@@ -447,29 +444,29 @@
                 cartContainer.innerHTML += `
                     <div class="cart-item">
                         <div>
-                            <strong>₹{item.name}</strong><br>
-                            <small>₹₹{item.price.toFixed(2)} x ₹{quantity}</small>
+                            <strong>${item.name}</strong><br>
+                            <small>₹${item.price.toFixed(2)} x ${quantity}</small>
                         </div>
                         <div class="cart-item-actions">
-                            <div>₹₹{itemTotal.toFixed(2)}</div>
-                            <button class="btn btn-danger" onclick="removeFromCart(₹{id})" title="Remove 1 item">-</button>
+                            <div>₹${itemTotal.toFixed(2)}</div>
+                            <button class="btn btn-danger" onclick="removeFromCart(${id})" title="Remove 1 item">-</button>
                         </div>
                     </div>
                 `;
             });
 
-            totalDisplay.innerText = `₹₹{grandTotal.toFixed(2)}`;
+            totalDisplay.innerText = `₹${grandTotal.toFixed(2)}`;
             amountPaidInput.disabled = false;
 
             calculateChange(grandTotal);
         }
 
+        // 7. Change Calculations
         function calculateChange(total) {
             const amountPaidInput = document.getElementById('amount-paid');
             const changeDisplay = document.getElementById('change-display');
             const checkoutBtn = document.getElementById('checkout-btn');
 
-            // Recalculate based on whatever value is currently written in the text box
             const checkFunds = () => {
                 const paid = parseFloat(amountPaidInput.value) || 0;
                 const change = paid - total;
@@ -479,34 +476,34 @@
                     changeDisplay.style.color = "var(--primary-dark)";
                     checkoutBtn.disabled = true;
                 } else if (change >= 0) {
-                    changeDisplay.innerText = `Return Cash: ₹₹{change.toFixed(2)}`;
+                    changeDisplay.innerText = `Return Cash: ₹${change.toFixed(2)}`;
                     changeDisplay.style.color = "var(--primary-dark)";
                     checkoutBtn.disabled = false;
                 } else {
-                    changeDisplay.innerText = `Deficit: -₹₹{Math.abs(change).toFixed(2)}`;
+                    changeDisplay.innerText = `Shortage: -₹${Math.abs(change).toFixed(2)}`;
                     changeDisplay.style.color = "var(--danger)";
                     checkoutBtn.disabled = true;
                 }
             };
 
             amountPaidInput.oninput = checkFunds;
-            checkFunds(); // Call initially to update state instantly if cart changes
+            checkFunds();
         }
 
-        // 7. Commit inventory values on success
+        // 8. Process Payment
         function processPayment() {
             Object.keys(currentCart).forEach(id => {
                 const item = foodInventory.find(p => p.id == id);
                 if (item) item.stock -= currentCart[id];
             });
 
-            alert("Sale completed successfully! Inventory states updated.");
+            alert("Payment recorded! Inventory values successfully updated.");
             currentCart = {};
             updateCartUI();
             displayInventory();
         }
 
-        // Initialize setup layout
+        // Start Up
         displayInventory();
     </script>
 </body>
